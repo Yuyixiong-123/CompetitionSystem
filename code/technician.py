@@ -5,11 +5,8 @@ Created on Tue Mar  9 19:31:46 2021
 @author: YU Yixiong
 """
 
-# import openpyxl  
-# import math  
 import random  
 import copy
-# import matplotlib.pyplot as plt 
 import static as st
 import Heli
 import City
@@ -37,36 +34,12 @@ def findTheNearestCity(lat,lon,locationList):
                 dmin=d  
                 loc=location  
       return loc 
-
-def findAvailbleRefuelingCity(heli,cityList):
-    # return the AvailbleRefuelingCity ,based on the heli name and citylist
-    availbleCityList=[]
-    if heli.para["IsHeli"]==True:
-        for city in cityList:
-            if city.para["hasGas"]==True:
-                if city.heliNum>heli.para["HeliArea"]:
-                    availbleCityList.append(city.para["Name"])
-    else:
-        for city in cityList:
-            if city.para["hasGas"]==True:
-                if city.trackNum>heli.para["TrackArea"]:
-                    availbleCityList.append(city.para["Name"])
-    return availbleCityList
-
-def findAvailbleLandingCity(heli,cityList):
-    availbleCityList=[]
-    if heli.para["IsHeli"]==True:
-        for city in cityList:
-            if city.para["hasGas"]==False:
-                if city.heliNum>heli.para["HeliArea"]:
-                    availbleCityList.append(city.para["Name"])
-    else:
-        for city in cityList:
-            if city.para["hasGas"]==False:
-                if city.trackNum>heli.para["TrackArea"]:
-                    availbleCityList.append(city.para["Name"])
-    return availbleCityList
-
+def missionToCity(m,cityList):
+    # return the city object based on its ID infomation
+    for c in cityList:
+        if c.para["Id"]==m.para["From"]:
+            return c
+       
 def calRouteOilForScout(heli,p1,p2):
     #this heli get P1 first and then p2, you should convert the place type first to get the coordinates
     # p1.p2 are city 
@@ -90,11 +63,45 @@ def calRouteOil(heli,p1,p2,p3):
     
     # all based on hour(h) unit 
     return distance*heli.para["OilUseSpeed"]/heli.para["Speed"]
+def taskNameForMission(m):
+    # find out the mission's task Name 
+    
+    taskName=None
+    for key in m.residue.keys():
+        if m.residue[key]!=0:
+            taskName=key
+            return taskName
+    return None
+# def capaNeedForMission(m):
+#     taskName=taskNameForMission(m)
+    
+    
+def getRouteOrder(m,c,cityList):
+    # According to the mission sort, judge the route order like "heli to m(city Class), to c"
+    
+    taskName=taskNameForMission(m)
+        
+    mc=["ToTransZaiMin", "ToTransShangYuan"]
+    cm=["WuZiNeed", "JiuYuanMemberNeed", "SheBeiNeed", "FireNum"]
+    if taskName in mc:
+        return (missionToCity(m,cityList),c)
+    elif taskName in cm:
+        return (c,missionToCity(m,cityList))
+    else:
+        return (missionToCity(m,cityList),)
+
+def findBase(cityList):
+     baseList=[]
+     for c in cityList:
+          if c.para["hasGas"]==True:
+               baseList.append(c)
+     return baseList
     
 def calLoadForScout(heli,m,cityList):
     # print(len(cityList))
     c=missionToCity(m, cityList)
-    nearBase=findTheNearestCity(c.para["PosY"], c.para["PosX"], cityList)
+    baseList=findBase(cityList)
+    nearBase=findTheNearestCity(c.para["PosY"], c.para["PosX"], baseList)
     oilForRoute=calRouteOilForScout(heli, c, nearBase)
     # print("oilForRoute=",oilForRoute," kg")
     
@@ -106,9 +113,9 @@ def calLoadForScout(heli,m,cityList):
     
 def checkScouteStatus(m,cityList,missionList):
     c=missionToCity(m, cityList)  
-    for m in missionList:
-        if m.para["From"]==c.para["Id"]:
-            if m.para["ZCArea"]!=0:
+    for mm in missionList:
+        if mm.para["From"]==c.para["Id"]:
+            if mm.para["ZCArea"]!=0:
                 return False
     return True
 
@@ -158,46 +165,7 @@ def prospectTaskLoad(heli,m,cityList,missionList):
             else: 
                 print("prospectTaskLoad：  ",taskName,"MaxWuZi",heli.para["MaxWuZi"],m.residue[taskName])
                 return taskName,"MaxWuZi",(min(heli.para["MaxWuZi"],m.residue[taskName]))
-    
-def missionToCity(m,cityList):
-    # return the city object based on its ID infomation
-    for c in cityList:
-        if c.para["Id"]==m.para["From"]:
-            return c
 
-def taskNameForMission(m):
-    # find out the mission's task Name 
-    
-    taskName=None
-    for key in m.residue.keys():
-        if m.residue[key]!=0:
-            taskName=key
-            return taskName
-    return None
-# def capaNeedForMission(m):
-#     taskName=taskNameForMission(m)
-    
-    
-def getRouteOrder(m,c,cityList):
-    # According to the mission sort, judge the route order like "heli to m(city Class), to c"
-    
-    taskName=taskNameForMission(m)
-        
-    mc=["ToTransZaiMin", "ToTransShangYuan"]
-    cm=["WuZiNeed", "JiuYuanMemberNeed", "SheBeiNeed", "FireNum"]
-    if taskName in mc:
-        return (missionToCity(m,cityList),c)
-    elif taskName in cm:
-        return (c,missionToCity(m,cityList))
-    else:
-        return (missionToCity(m,cityList),)
-
-def findBase(cityList):
-     baseList=[]
-     for c in cityList:
-          if c.para["hasGas"]==True:
-               baseList.append(c)
-     return baseList
 
 def calTaskTime(heli,taskCapa,taskload):
     # give the tasktime by heli's task model! ! !
@@ -238,7 +206,7 @@ def getRouteTimeList(heli,tasktime1,tasktime2,route,nearestBase,t0=0,t1=0,t2=0,t
         t6+=t5+config.refuelTimeInBase
         return [t0,t1,t2,t3,t4,t5,t6]
     else:
-        0+heli.t
+        t0+=heli.t
         t1+=t0+(st.getDistance(heli.lat, heli.lon, route[0].para["PosY"], route[0].para["PosX"])/heli.para["Speed"]*3600)
         t2+=t1+tasktime1
         t3+=t2+(st.getDistance(route[0].para["PosY"], route[0].para["PosX"], nearestBase.para["PosY"], nearestBase.para["PosX"])/heli.para["Speed"]*3600)
@@ -250,19 +218,8 @@ def verifyTheHeliCapa(heli,cityList,missionList):
         _1,_2,taskload=prospectTaskLoad(heli,m,cityList,missionList)
         if taskload>0:   
             return True
-    
     return False
-# =============================================================================
-# def findWaitTime(heli,t,c):
-#     if heli.para["IsHeli"]==True:
-#         for tup in c.occupyTimeForHeli:
-#             if t>tup[0] and t<tup[1]:
-#                 return tup[1]-t+1
-#     else:
-#         for tup in c.occupyTimeForTrack:
-#             if t>tup[0] and t<tup[1]:
-#                 return tup[1]-t+1
-# =============================================================================
+
 def findMiserHeliBase(heli,baseList2):
     print("look for a back base.........")
     baseList=copy.deepcopy(baseList2)
@@ -276,19 +233,17 @@ def findMiserHeliBase(heli,baseList2):
         # print('back to ',b.para["Name"],'oilNeed:',oilNeed)
         if oilNeed<heli.oil:
             if checklanding(heli,t,b)==True:
+               # return the true origin base object
                 for base in baseList2:
                     if base.para['Name']==b.para["Name"]:
                         print("find a base to return")
                         return base
-    print("can't find a base, fuck")
+    print("can't find a base")
     return None
             
 def missionEnforceInspect(heli,m,c,cityList,missionList,heliList):
     print("-------------missionEnforceInspect-----------\n")
-    # print('missionList',len(missionList))
-    # print("cityList",len(cityList))
      # if the heli can do the job, then return a list that contain the progress's infomation; if not return the null set
-     # processInfo=[route,taskName,taskCapa,taskload,[heliLog1,helilog2,...],heli.oil,heli.t]
     processInfo=[]
     
 # =============================================================================
@@ -296,9 +251,8 @@ def missionEnforceInspect(heli,m,c,cityList,missionList,heliList):
 # =============================================================================
     oilNeed=0
 # inspect the oil  :  oil doing task
-# calculate the taskload
     taskName,taskCapa,taskload=prospectTaskLoad(heli,m,cityList,missionList)
-    print(heli.name,"taskName,taskload = ",taskName,taskload)
+    print(heli.name,"taskName",taskName,", taskload = ",taskload)
 # check whether the heli can do the job
     if(taskload==0):
         return processInfo
@@ -330,17 +284,17 @@ def missionEnforceInspect(heli,m,c,cityList,missionList,heliList):
                 if base!=None:
                     heli.backToBase(base)  
         return processInfo
-    
+    oilNeed-=st.getDistance(route[-1].para["PosY"], route[-1].para["PosX"],nearestBase.para["PosY"],nearestBase.para["PosX"])/heli.para["Speed"]*heli.para["OilUseSpeed"]
 # =============================================================================
 # # inspect the landing condition
 # =============================================================================
-    routeTimeList=[]
-    if taskName in ["WuZiNeed", "JiuYuanMemberNeed", "ToTransZaiMin", "ToTransShangYuan"]:
     # =============================================================================
     #         checkLandC1,checkLandC2,checkLandC3=False,False,False
     #         wt1,wt3,wt5=0,0,0
     #           特别想解决这个直升机悬停的问题，不然真是一点都不智能。
     # =============================================================================
+    routeTimeList=[]
+    if taskName in ["WuZiNeed", "JiuYuanMemberNeed", "ToTransZaiMin", "ToTransShangYuan"]:
         if len(route)==2:
             routeTimeList=getRouteTimeList(heli,tasktime1,tasktime2,route,nearestBase)
             # t1 go to the c1; t2 done the task in c1 ; t3 go to the c2 ; t4 done the task in c2 ; t5 get the nearbase ; t6 done the refuel
@@ -376,19 +330,12 @@ def missionEnforceInspect(heli,m,c,cityList,missionList,heliList):
             if checklanding(heli,routeTimeList[3],nearestBase)==False:
                 print("can not land in "+nearestBase.para["Name"])
                 return processInfo
-    
-    
-    
-    
-    
-    # oilNeed+=tasktime/3600*heli.para["OilUseSpeed"]
-    
 # =============================================================================
 #     congratulate ! The ** heli finaly can do the ** job
 #           give the processInfo to the list
 # =============================================================================
-# self.log.append(['返回基地', base.para["Name"],self.t])
-# def informBase(self,t1,t2,base):  [[t1,t2,route[0]],[t1,t2,route[1]]]
+# log.append(['返回基地', base.para["Name"],self.t])
+# informBase(self,t1,t2,base):  [[t1,t2,route[0]],[t1,t2,route[1]]]
     if len(route)==2:
         if taskName in ["WuZiNeed", "JiuYuanMemberNeed", "ToTransZaiMin", "ToTransShangYuan"]:
             processInfo=[route,taskName,taskCapa,taskload,oilNeed,[[routeTimeList[1],routeTimeList[2],route[0]],[routeTimeList[3],routeTimeList[4],route[1]]],[["前往",route[0].para['Name'],'',routeTimeList[1]],[taskName,route[0].para['Name'],taskload,routeTimeList[2]],["前往",route[1].para['Name'],'',routeTimeList[3]],[taskName,route[1].para['Name'],taskload,routeTimeList[4]]]]
@@ -433,10 +380,6 @@ def theCityWhoCatchMission(m,cityList):
     if taskName == "ZCArea":
         return findCapaCity("FireNum", cityList)
     
-
-
-
-        
 def update(heli,c,m,processInfo):
     # print("-------------update-----------\n")
     route,taskName,taskCapa,taskload,oilNeed,heliInform,heliLog=processInfo
@@ -490,7 +433,6 @@ def assignWork(heli,cityList,missionList,heliList):
             rc=random.randint(1, len(cl))
             c=cl.pop(rc-1)
             processInfo=missionEnforceInspect(heli,fm(m,missionList),fc(c,cityList),cityList,missionList,heliList)
-            # 一定要传入本体，不然总是用的“最大taskload”,因为是
             
             if(len(processInfo)!=0):
                 find=True
@@ -499,10 +441,12 @@ def assignWork(heli,cityList,missionList,heliList):
                 mission=fm(m,missionList)
                 update(heli,city,mission,processInfo)
                 return 1
-    if len(heli.log)>0:
-        if heli.log[-1][0]=="基地保障":
-            heliList.remove(heli)
-            return None
+# =============================================================================
+#     if len(heli.log)>0:
+#         if heli.log[-1][0]=="基地保障":
+#             heliList.remove(heli)
+#             return None
+# =============================================================================
     if verifyTheHeliCapa(heli,cityList,missionList)==True:
         base=findMiserHeliBase(heli,findBase(cityList))
         if base!=None:
@@ -566,6 +510,15 @@ def checkAllMissionResidue(missionList):
     for m in ml:
         missionList.remove(m)
     return residue
+
+def getMyFleet():
+    with open("../data/fleet1/fleet.txt") as f:
+        heliNameList=f.readlines()
+        f.close()
+    for i in range(len(heliNameList)):
+        heliNameList[i]=heliNameList[i][:-1]
+    return(heliNameList)
+
 if __name__ =="__main__":
     # cityList=City.getCityList()
     # heli=Heli.addHeli("M-26")
@@ -586,4 +539,11 @@ if __name__ =="__main__":
     # print(a.para,"\n",b.para)
 # print(findAvailbleLandingCity(heli, cityList))
 # print(calRouteDistance(heli, cityList[1], cityList[1]))
-    pass
+    # pass
+    heliNameList=getMyFleet()
+    cityList,missionList,heliList=fleetInitialize(heliNameList)
+    deployPlan=fleetDeploy(heliList,cityList)
+    # for m in missionList:
+    #      print(taskNameForMission(m))
+    print(prospectTaskLoad(heliList[0], missionList[-1], cityList, missionList))
+    

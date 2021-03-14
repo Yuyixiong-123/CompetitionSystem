@@ -19,7 +19,7 @@ class Mission:
 
         '''
         for key in self.residue.keys():
-            if self.residue[key]!=0:
+            if self.residue[key]>0:
                 return key
         return None                
             

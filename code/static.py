@@ -32,3 +32,47 @@ def getDistance(lat1, lng1, lat2, lng2):
     return s#计算结果单位为千米(km)
 # print(getDistance(28.55, 120, 29.4, 120))
 
+# =============================================================================
+# =============================================================================
+# a backup from techician's useless code
+# =============================================================================
+# def findAvailbleRefuelingCity(heli,cityList):
+#     # return the AvailbleRefuelingCity ,based on the heli name and citylist
+#     availbleCityList=[]
+#     if heli.para["IsHeli"]==True:
+#         for city in cityList:
+#             if city.para["hasGas"]==True:
+#                 if city.heliNum>heli.para["HeliArea"]:
+#                     availbleCityList.append(city.para["Name"])
+#     else:
+#         for city in cityList:
+#             if city.para["hasGas"]==True:
+#                 if city.trackNum>heli.para["TrackArea"]:
+#                     availbleCityList.append(city.para["Name"])
+#     return availbleCityList
+# 
+# def findAvailbleLandingCity(heli,cityList):
+#     availbleCityList=[]
+#     if heli.para["IsHeli"]==True:
+#         for city in cityList:
+#             if city.para["hasGas"]==False:
+#                 if city.heliNum>heli.para["HeliArea"]:
+#                     availbleCityList.append(city.para["Name"])
+#     else:
+#         for city in cityList:
+#             if city.para["hasGas"]==False:
+#                 if city.trackNum>heli.para["TrackArea"]:
+#                     availbleCityList.append(city.para["Name"])
+#     return availbleCityList
+# =============================================================================
+# =============================================================================
+# def findWaitTime(heli,t,c):
+#     if heli.para["IsHeli"]==True:
+#         for tup in c.occupyTimeForHeli:
+#             if t>tup[0] and t<tup[1]:
+#                 return tup[1]-t+1
+#     else:
+#         for tup in c.occupyTimeForTrack:
+#             if t>tup[0] and t<tup[1]:
+#                 return tup[1]-t+1
+# =============================================================================
