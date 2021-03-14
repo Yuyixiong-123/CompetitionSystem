@@ -26,7 +26,7 @@ class City():
             if ( t>tup[0] and t<tup[1] ):
                 heliNum-=tup[2]
             # remainAreaList.append(heliNum)
-        print(heliNum)
+        # print(self.para["Name"],"剩余直升机停机面积：",heliNum)
         return(area<heliNum)
     # this is a place showing the anti-AI of this system. The heli won't wait for a leisure, hovering there.
     
@@ -35,7 +35,7 @@ class City():
         for tup in self.occupyTimeForTrack:
             if ( t>tup[0] and t<tup[1] ):
                 trackNum-=tup[2]
-        print(trackNum)
+        # print(self.para["Name"],"剩余固定翼停机面积：",trackNum)
         return(area<trackNum)
     
 # =============================================================================
@@ -78,5 +78,5 @@ if __name__ == "__main__":
     # for i in range(3,15):
     #     c=addCity(i)
     #     cl.append(copy.deepcopy( c ) )
-    cl=getCityList()
-    # pass
+    # cl=getCityList()
+    pass

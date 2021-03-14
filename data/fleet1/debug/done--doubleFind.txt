@@ -1,0 +1,14 @@
+2-S76 taskName,taskload =  FireNum 2
+tasktime 1800 oilNeed =  136.5
+route:  东阳(水源) 天台
+oil not enough
+look for a back base.........
+back to  义乌机场 oilNeed: 98.52567194090341
+back to  台州机场 oilNeed: 77.59596998803387
+back to  杭州机场 oilNeed: 154.38940777812286
+can't find a base, fuck
+look for a back base.........
+back to  杭州机场 oilNeed: 154.38940777812286
+back to  义乌机场 oilNeed: 98.52567194090341
+back to  台州机场 oilNeed: 77.59596998803387
+can't find a base, fuck

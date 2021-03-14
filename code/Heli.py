@@ -14,23 +14,24 @@ class Heli():
     lat=29.34# presuppose to be in the YiWu Airport
     t=1200 # valued as the first refueling time
     oil=0
+    name=''
 
-    wuzi=0 #goods
-    human=0
-    wg=0# swing
-    yh=0# the space for victims in the calamity
+    # wuzi=0 #goods
+    # human=0
+    # wg=0# swing
+    # yh=0# the space for victims in the calamity
     
     def informBase(self,t1,t2,base):
         # Inform the base that "i will occupy your area between t1-t2, the fleids change based on IsHeli
         if self.para["IsHeli"]==True:
             base.occupyTimeForHeli.append([t1,t2,self.para["HeliArea"]])
         else:
-            base.occupyTimeForTrack.append([t1,t2,self.para["mission"]])
+            base.occupyTimeForTrack.append([t1,t2,self.para["TrackArea"]])
     
     def backToBase(self,base):
         d=st.getDistance(self.lat,self.lon,base.para["PosY"],base.para["PosX"])
         self.t+=d/self.para["Speed"]*3600
-        self.log.append(['返回基地', base.para["Name"],self.t])
+        self.log.append(['返回基地', base.para["Name"],'',self.t])
 
         t1=self.t
 
@@ -40,12 +41,11 @@ class Heli():
         self.lat=base.para["PosY"]
         self.lon=base.para["PosX"]
         
-        self.log.append(['基地保障', base.para["Name"],self.t])
+        self.log.append(['基地保障', base.para["Name"],'20分钟',self.t])
         self.informBase(t1, t2, base)
+    def __del__(self):
+        self.log.append(['被销毁', '','',self.t])
         
-        
-        
-    
     # def exepeopleIn(self,c1,c2):
         # define this mission by phase and you will get the time c0--c1--c2 anddo task in c1, c2
         # use the return to confirm the mission enforceability
@@ -64,7 +64,6 @@ def addHeli(name):
     
     # initalize the temp variables from the
     h.oil=h.para["OilMax"]
-    h.yh=h.para["YH_Space"]    
     # h.lat=city.para["PosY"]
     # h.lon=city.para["PosX"]   
     return h
