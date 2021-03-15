@@ -6,6 +6,7 @@ Created on Tue Mar  9 16:35:31 2021
 """
 
 import openpyxl
+import commander
 
 class Mission:
     def __init__(self,para,residue):
@@ -39,6 +40,13 @@ def getMissionList():
         
     return missionList
 
+def writeMissionLog(m):
+     with open(commander.config.logOutputPath,'a+') as f:
+          for item in m.residue.items():
+              if item[-1]!=0:
+                  f.write(str(item[0])+' '+str(item[1])+'\n')
+          f.close()
+          
 if __name__ =="__main__":
     # p=getMissionList()
     pass

@@ -11,6 +11,7 @@ import static as st
 import Heli
 import City
 import Mission
+import commander
 
 class config():
     refuelTimeInBase=1200
@@ -63,17 +64,15 @@ def calRouteOil(heli,p1,p2,p3):
     
     # all based on hour(h) unit 
     return distance*heli.para["OilUseSpeed"]/heli.para["Speed"]
+
 def taskNameForMission(m):
     # find out the mission's task Name 
-    
     taskName=None
     for key in m.residue.keys():
         if m.residue[key]!=0:
             taskName=key
             return taskName
     return None
-# def capaNeedForMission(m):
-#     taskName=taskNameForMission(m)
     
     
 def getRouteOrder(m,c,cityList):
@@ -132,7 +131,7 @@ def prospectTaskLoad(heli,m,cityList,missionList):
     else:
         if taskName in missionNeed:
             if heli.para[taskCapa[missionNeed.index(taskName)]] > 0:
-                print("prospectTaskLoad：  ",taskName,taskCapa[missionNeed.index(taskName)],heli.para[taskCapa[missionNeed.index(taskName)]],m.residue[taskName])
+                # print("prospectTaskLoad：  ",taskName,taskCapa[missionNeed.index(taskName)],heli.para[taskCapa[missionNeed.index(taskName)]],m.residue[taskName])
                 return taskName,taskCapa[missionNeed.index(taskName)],min(heli.para[taskCapa[missionNeed.index(taskName)]],m.residue[taskName])
             else:
                 return taskName,taskCapa[missionNeed.index(taskName)],0
@@ -142,12 +141,12 @@ def prospectTaskLoad(heli,m,cityList,missionList):
             if checkScouteStatus(m,cityList,missionList)==False:
                 return taskName,"XF_Content",0
             else:
-                print("prospectTaskLoad：  ",taskName,"XF_Content",m.para["FireNum"],heli.para["XF_Content"])
+                # print("prospectTaskLoad：  ",taskName,"XF_Content",m.para["FireNum"],heli.para["XF_Content"])
                 return taskName,"XF_Content",min(m.para["FireNum"],heli.para["XF_Content"])
         elif (taskName=="SheBeiNeed"):
             # get the max equipment that heli can swing
             if heli.para["WG_bool"]==2:#这里是后期要修改的bug，S76是不能够吊运设备的，这里需要加入设备重量信息判断
-                print("prospectTaskLoad：  ",taskName,"WG_bool",1)
+                # print("prospectTaskLoad：  ",taskName,"WG_bool",1)
                 return taskName,"WG_bool",1
             else:
                 return taskName,"WG_bool",0
@@ -155,7 +154,7 @@ def prospectTaskLoad(heli,m,cityList,missionList):
             if heli.para["YG_Speed"]==0:
                 return taskName,"YG_Speed",0
             else:
-                print("prospectTaskLoad：  ",taskName,"YG_Speed",calLoadForScout(heli, m, cityList))
+                # print("prospectTaskLoad：  ",taskName,"YG_Speed",calLoadForScout(heli, m, cityList))
                 return taskName,"YG_Speed",calLoadForScout(heli, m, cityList)
         
         elif(taskName=="WuZiNeed"):
@@ -163,7 +162,7 @@ def prospectTaskLoad(heli,m,cityList,missionList):
             if heli.para["Name"]=="BZK_005":
                 return None,None,0
             else: 
-                print("prospectTaskLoad：  ",taskName,"MaxWuZi",heli.para["MaxWuZi"],m.residue[taskName])
+                # print("prospectTaskLoad：  ",taskName,"MaxWuZi",heli.para["MaxWuZi"],m.residue[taskName])
                 return taskName,"MaxWuZi",(min(heli.para["MaxWuZi"],m.residue[taskName]))
 
 
@@ -221,7 +220,7 @@ def verifyTheHeliCapa(heli,cityList,missionList):
     return False
 
 def findMiserHeliBase(heli,baseList2):
-    print("look for a back base.........")
+    # print("look for a back base.........")
     baseList=copy.deepcopy(baseList2)
     while(True):
         if len(baseList)==0:
@@ -230,19 +229,19 @@ def findMiserHeliBase(heli,baseList2):
         b=baseList.pop(rb-1)
         t=st.getDistance(heli.lat,heli.lon,b.para["PosY"],b.para["PosX"])/heli.para["Speed"]
         oilNeed=t*heli.para["OilUseSpeed"]
-        # print('back to ',b.para["Name"],'oilNeed:',oilNeed)
+         # print('back to ',b.para["Name"],'oilNeed:',oilNeed)
         if oilNeed<heli.oil:
             if checklanding(heli,t,b)==True:
                # return the true origin base object
                 for base in baseList2:
                     if base.para['Name']==b.para["Name"]:
-                        print("find a base to return")
+                        # print("find a base to return")
                         return base
-    print("can't find a base")
+    # print("can't find a base")
     return None
             
 def missionEnforceInspect(heli,m,c,cityList,missionList,heliList):
-    print("-------------missionEnforceInspect-----------\n")
+    # print("-------------missionEnforceInspect-----------\n")
      # if the heli can do the job, then return a list that contain the progress's infomation; if not return the null set
     processInfo=[]
     
@@ -259,7 +258,7 @@ def missionEnforceInspect(heli,m,c,cityList,missionList,heliList):
     tasktime1,tasktime2=calTaskTime(heli, taskCapa, taskload) # 1 for upload, 2 for download
     tasktime=tasktime1+tasktime2
     oilNeed+=tasktime*heli.para["OilUseSpeed"]/3600
-    print("tasktime",tasktime,"oilNeed = ",oilNeed)
+    # print("tasktime",tasktime,"oilNeed = ",oilNeed)
 
 # inspect the oil  :  oil on the road
 # check distance
@@ -273,10 +272,10 @@ def missionEnforceInspect(heli,m,c,cityList,missionList,heliList):
     
     if len(route)==2:
         print("route: ",route[0].para["Name"],route[1].para["Name"])
-        print("In this route I need ",oilNeed,'and I have ',heli.oil)
+        # print("In this route I need ",oilNeed,'and I have ',heli.oil)
     else:
         print("route: ",route[0].para["Name"])
-        print("In this route I need ",oilNeed,'and I have ',heli.oil)
+        # print("In this route I need ",oilNeed,'and I have ',heli.oil)
     if heli.oil<oilNeed:
         print("oil not enough")
         if verifyTheHeliCapa(heli,cityList,missionList)==True:
@@ -411,7 +410,7 @@ def fc(c,cityList):
             return cityList[i]
         
 def assignWork(heli,cityList,missionList,heliList):
-    print("----------------------------------------assignWork--------------------------------------------------\n")
+    # print("----------------------------------------assignWork--------------------------------------------------\n")
     # print('missionList',len(missionList))
     # print("cityList",len(cityList))
     ml=copy.deepcopy(missionList)
@@ -452,6 +451,7 @@ def assignWork(heli,cityList,missionList,heliList):
         if base!=None:
             heli.backToBase(base)
     else:
+        Heli.writeHeliLog(heli,commander.config.logOutputPath)
         heliList.remove(heli)
         return None
             # never back to base how poor you are
@@ -499,7 +499,7 @@ def fleetDeploy(heliList,cityList):
                 return []
     return deployPlan
 
-def checkAllMissionResidue(missionList):
+def checkAllMissionResidue(missionList,heliList):
     residue=False
     ml=[]
     for m in missionList:
@@ -509,6 +509,9 @@ def checkAllMissionResidue(missionList):
             ml.append(m)
     for m in ml:
         missionList.remove(m)
+    if residue==False:
+         for h in heliList:
+              Heli.writeHeliLog(h,commander.config.logOutputPath)
     return residue
 
 def getMyFleet():
@@ -545,5 +548,6 @@ if __name__ =="__main__":
     deployPlan=fleetDeploy(heliList,cityList)
     # for m in missionList:
     #      print(taskNameForMission(m))
-    print(prospectTaskLoad(heliList[0], missionList[-1], cityList, missionList))
-    
+    # print(prospectTaskLoad(heliList[0], missionList[-1], cityList, missionList))
+    # heliList[0].log.append([0,1,2,3])
+    # Heli.writeHeliLog(heliList[0])

@@ -68,6 +68,13 @@ def addHeli(name):
     # h.lon=city.para["PosX"]   
     return h
 
+def writeHeliLog(h,path):
+     print(h.name+"write heli log")
+     with open(path,'a+') as f:
+          for l in h.log:
+              f.write(h.name+':'+' '+str(l[0])+' '+str(l[1])+' '+str(l[2])+'   t='+str(l[3])+'\n')
+          f.write('\n\n')
+          f.close()
 
 
 if __name__ == "__main__":
