@@ -6,7 +6,7 @@ Created on Tue Mar  9 14:49:07 2021
 """
 
 import openpyxl
-
+import math
 class City():
     def  __init__(self,para,trackNum,heliNum,occupyTimeForHeli,occupyTimeForTrack):
         self.para=para
@@ -15,28 +15,39 @@ class City():
         self.occupyTimeForHeli=occupyTimeForHeli
         self.occupyTimeForTrack=occupyTimeForTrack
     
-    def checkHeliNum(self,t,area):
-        # actually we only need to checkthe "IN-time" for this is the only time-node possbily for landing bug
+
+    def checkHeliNum(self,t1,t2,area):
         #the occupatin list is composed with [t1,t2,area]
-        # remainAreaList=[]
+        if len(self.occupyTimeForHeli)==0:
+             return True
         
-        # for t in [t1,(t1+t2)/2,t2]:
-        heliNum=self.para["MaxHeliNum"]
-        for tup in self.occupyTimeForHeli:
-            if ( t>tup[0] and t<tup[1] ):
-                heliNum-=tup[2]
-            # remainAreaList.append(heliNum)
-        # print(self.para["Name"],"剩余直升机停机面积：",heliNum)
-        return(area<heliNum)
+        t1=math.ceil(t1)
+        t2=math.floor(t2)
+        for t in range(t1,t2,10):
+             heliNum=self.para["MaxHeliNum"]
+             for tup in self.occupyTimeForHeli:
+                 if ( t>tup[0] and t<tup[1] ):
+                     heliNum-=tup[2]
+             if area>heliNum :
+                  return False
+             # print(self.para["Name"],"剩余直升机停机面积：",heliNum)
+        return(True)
     # this is a place showing the anti-AI of this system. The heli won't wait for a leisure, hovering there.
     
-    def checkTrackNum(self,t,area):
-        trackNum=self.para["MaxTrackNum"]
-        for tup in self.occupyTimeForTrack:
-            if ( t>tup[0] and t<tup[1] ):
-                trackNum-=tup[2]
-        # print(self.para["Name"],"剩余固定翼停机面积：",trackNum)
-        return(area<trackNum)
+    def checkTrackNum(self,t1,t2,area):
+        if len(self.occupyTimeForTrack)==0:
+             return True
+        t1=math.ceil(t1)
+        t2=math.floor(t2)
+        for t in range(t1,t2,10):
+             trackNum=self.para["MaxTrackNum"]
+             for tup in self.occupyTimeForTrack:
+                 if ( t>tup[0] and t<tup[1] ):
+                     trackNum-=tup[2]
+             if area>trackNum:
+                  return False
+             # print(self.para["Name"],"剩余固定翼停机面积：",trackNum)
+        return(True)
     
 # =============================================================================
 #     def checkLandingFeasibilityForHeli(self):

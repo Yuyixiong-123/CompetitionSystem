@@ -39,7 +39,7 @@ if __name__ =="__main__":
            heli=th.findTheWaitHeli(heliList)
            th.assignWork(heli, cityList, missionList,heliList)
            i+=1
-           if(i>2000):
+           if(i>50):
                break
           
      
@@ -47,9 +47,9 @@ if __name__ =="__main__":
      # for m in missionList:
      #       Mission.writeMissionLog(m)
              
-    # Mission.writeMissionLog(missionList[0])    
-    # time.sleep(2)        
-    # writeMissionLog(missionList[2])            
+     # Mission.writeMissionLog(missionList[0])    
+     # time.sleep(2)        
+     # Mission.writeMissionLog(missionList[2])            
                   
                   
                   

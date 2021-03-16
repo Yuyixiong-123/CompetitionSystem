@@ -187,12 +187,12 @@ def calTaskTime(heli,taskCapa,taskload):
          
      return tasktime1,tasktime2
  
-def checklanding(heli,t,c):
+def checklanding(heli,t1,t2,c):
     #check whether can or cannot if the heli land c at t, base on the classification of the heli
     if heli.para["IsHeli"]==True:
-        return c.checkHeliNum(t,heli.para["HeliArea"])
+        return c.checkHeliNum(t1,t2,heli.para["HeliArea"])
     else:
-        return c.checkTrackNum(t,heli.para["HeliArea"])
+        return c.checkTrackNum(t1,t2,heli.para["TrackArea"])
     
 def getRouteTimeList(heli,tasktime1,tasktime2,route,nearestBase,t0=0,t1=0,t2=0,t3=0,t4=0,t5=0,t6=0):
     if len(route)==2:
@@ -227,11 +227,11 @@ def findMiserHeliBase(heli,baseList2):
             break
         rb=random.randint(1,len(baseList))
         b=baseList.pop(rb-1)
-        t=st.getDistance(heli.lat,heli.lon,b.para["PosY"],b.para["PosX"])/heli.para["Speed"]
-        oilNeed=t*heli.para["OilUseSpeed"]
+        dt=st.getDistance(heli.lat,heli.lon,b.para["PosY"],b.para["PosX"])/heli.para["Speed"]
+        oilNeed=dt*heli.para["OilUseSpeed"]
          # print('back to ',b.para["Name"],'oilNeed:',oilNeed)
         if oilNeed<heli.oil:
-            if checklanding(heli,t,b)==True:
+            if checklanding(heli,heli.t,heli.t+dt,b)==True:
                # return the true origin base object
                 for base in baseList2:
                     if base.para['Name']==b.para["Name"]:
@@ -297,22 +297,22 @@ def missionEnforceInspect(heli,m,c,cityList,missionList,heliList):
         if len(route)==2:
             routeTimeList=getRouteTimeList(heli,tasktime1,tasktime2,route,nearestBase)
             # t1 go to the c1; t2 done the task in c1 ; t3 go to the c2 ; t4 done the task in c2 ; t5 get the nearbase ; t6 done the refuel
-            if checklanding(heli,routeTimeList[1],route[0])==False:
+            if checklanding(heli,routeTimeList[1],routeTimeList[2],route[0])==False:
                 print("can not land in "+route[0].para["Name"])
                 return processInfo
-            if checklanding(heli,routeTimeList[3],route[1])==False:
+            if checklanding(heli,routeTimeList[3],routeTimeList[4],route[1])==False:
                 print("can not land in "+route[1].para["Name"])
                 return processInfo
-            if checklanding(heli,routeTimeList[5],nearestBase)==False:
+            if checklanding(heli,routeTimeList[5],routeTimeList[6],nearestBase)==False:
                 print("can not land in "+nearestBase.para["Name"])
                 return processInfo
             
         else:
             routeTimeList=getRouteTimeList(heli,tasktime1,tasktime2,route,nearestBase)
-            if checklanding(heli,routeTimeList[1],route[0])==False:
+            if checklanding(heli,routeTimeList[1],routeTimeList[2],route[0])==False:
                 print("can not land in "+route[0].para["Name"])
                 return processInfo
-            if checklanding(heli,routeTimeList[3],nearestBase)==False:
+            if checklanding(heli,routeTimeList[3],routeTimeList[4],nearestBase)==False:
                 print("can not land in "+nearestBase.para["Name"])
                 return processInfo
     else:
@@ -320,13 +320,13 @@ def missionEnforceInspect(heli,m,c,cityList,missionList,heliList):
         # in these situation, the heli do "scout", "fire extinguishment", "swing equipment" 
             routeTimeList=getRouteTimeList(heli,tasktime1,tasktime2,route,nearestBase)
             # t1 go to the c1; t2 done the task in c1 ; t3 go to the c2 ; t4 done the task in c2 ; t5 get the nearbase ; t6 done the refuel
-            if checklanding(heli,routeTimeList[5],nearestBase)==False:
+            if checklanding(heli,routeTimeList[5],routeTimeList[6],nearestBase)==False:
                 print("can not land in "+nearestBase.para["Name"])
                 return processInfo
             
         else:
             routeTimeList=getRouteTimeList(heli,tasktime1,tasktime2,route,nearestBase)
-            if checklanding(heli,routeTimeList[3],nearestBase)==False:
+            if checklanding(heli,routeTimeList[3],routeTimeList[4],nearestBase)==False:
                 print("can not land in "+nearestBase.para["Name"])
                 return processInfo
 # =============================================================================
