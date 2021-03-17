@@ -28,10 +28,25 @@ class Heli():
         else:
             base.occupyTimeForTrack.append([t1,t2,self.para["TrackArea"]])
     
+    def checkPositionForBackBase(self,base,baseList):
+         # baseNameList=[]
+         # for b in baseList:
+         #      baseNameList.append(b.para["Name"])
+         if len(self.log)>1:
+              if self.log[-1][0]!='基地保障':
+                   return True
+              elif self.log[-1][1]!=base.para["Name"] and self.log[-2][0]!='基地保障':
+                   # allow transfer base for once, but not twice
+                   return True
+              else:
+                   return False
+         else:
+              return True
+              
     def backToBase(self,base):
         d=st.getDistance(self.lat,self.lon,base.para["PosY"],base.para["PosX"])
         self.t+=d/self.para["Speed"]*3600
-        self.log.append(['返回基地', base.para["Name"],'',self.t])
+        self.log.append(['前往基地', base.para["Name"],'',self.t])
 
         t1=self.t
 
@@ -43,9 +58,17 @@ class Heli():
         
         self.log.append(['基地保障', base.para["Name"],'20分钟',self.t])
         self.informBase(t1, t2, base)
-    def __del__(self):
-        self.log.append(['被销毁', '','',self.t])
-        
+
+    def modifyLog(self):
+         dl=[]
+         for i in range(-1,-len(self.log)-1,-1):
+              if self.log[i][0]!="前往基地" or self.log[i][0]!="基地保障":
+                   # return None
+                   break
+              else: 
+                   dl.append(self.log[i])
+         for l in dl:
+              self.log.remove(l)
     # def exepeopleIn(self,c1,c2):
         # define this mission by phase and you will get the time c0--c1--c2 anddo task in c1, c2
         # use the return to confirm the mission enforceability

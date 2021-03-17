@@ -9,10 +9,11 @@ import openpyxl
 import commander
 
 class Mission:
-    def __init__(self,para,residue):
+    def __init__(self,para,residue,log,seri):
         self.para=para
         self.residue=residue
-    t=0
+        self.log=log
+        self.seri=seri
         
     def residueCheck(self):
         '''
@@ -30,7 +31,7 @@ def getMissionList():
     missionList=[]
     
     for i in range(3,12):
-        m=Mission({},{})
+        m=Mission({},{},[],i-2)
         for j in range(1,sheet.max_column+1):    
             m.para[sheet.cell(1,j).value]=sheet.cell(i,j).value
             if(1<j and j<9):
@@ -41,10 +42,11 @@ def getMissionList():
     return missionList
 
 def writeMissionLog(m):
+     
      with open(commander.config.logOutputPath,'a+') as f:
-          for item in m.residue.items():
-              if item[-1]!=0:
-                  f.write(str(item[0])+' '+str(item[1])+'\n')
+          f.write("\n任务"+str(m.seri)+": "+m.log[0][-1]+'\n')
+          for l in m.log:
+               f.write(l[0]+' '+str(l[1])+' '+str(l[2])+'\n')
           f.close()
           
 if __name__ =="__main__":

@@ -281,6 +281,12 @@ def missionEnforceInspect(heli,m,c,cityList,missionList,heliList):
         if verifyTheHeliCapa(heli,cityList,missionList)==True:
                 base=findMiserHeliBase(heli,findBase(cityList))
                 if base!=None:
+                     # To check whether the heli fly around some bases and don't do anything
+                    if heli.checkPositionForBackBase(base,findBase(cityList))==False:
+                         heli.modifyLog()
+                         Heli.writeHeliLog(heli,commander.config.logOutputPath)
+                         heliList.remove(heli)
+                         return processInfo
                     heli.backToBase(base)  
         return processInfo
     oilNeed-=st.getDistance(route[-1].para["PosY"], route[-1].para["PosX"],nearestBase.para["PosY"],nearestBase.para["PosX"])/heli.para["Speed"]*heli.para["OilUseSpeed"]
@@ -398,7 +404,7 @@ def update(heli,c,m,processInfo):
     
     # mission's information update
     m.residue[taskName]-=taskload
-
+    m.log.append([heli.name,taskload,heli.t,taskName])
         
 def fm(m,missionList):
     for i in range(len(missionList)):
@@ -431,7 +437,8 @@ def assignWork(heli,cityList,missionList,heliList):
                 break
             rc=random.randint(1, len(cl))
             c=cl.pop(rc-1)
-            processInfo=missionEnforceInspect(heli,fm(m,missionList),fc(c,cityList),cityList,missionList,heliList)
+            if heli in heliList:
+                 processInfo=missionEnforceInspect(heli,fm(m,missionList),fc(c,cityList),cityList,missionList,heliList)
             
             if(len(processInfo)!=0):
                 find=True
@@ -446,13 +453,23 @@ def assignWork(heli,cityList,missionList,heliList):
 #             heliList.remove(heli)
 #             return None
 # =============================================================================
-    if verifyTheHeliCapa(heli,cityList,missionList)==True:
-        base=findMiserHeliBase(heli,findBase(cityList))
-        if base!=None:
-            heli.backToBase(base)
+    if heli in heliList:
+         if verifyTheHeliCapa(heli,cityList,missionList)==True:
+             base=findMiserHeliBase(heli,findBase(cityList))
+             if base!=None:
+                   # To check whether the heli fly around some bases and don't do anything
+                 if heli.checkPositionForBackBase(base,findBase(cityList))==False:
+                    heli.modifyLog()
+                    Heli.writeHeliLog(heli,commander.config.logOutputPath)
+                    heliList.remove(heli)
+                    return None
+                 heli.backToBase(base)
+         else:
+             heli.modifyLog()
+             Heli.writeHeliLog(heli,commander.config.logOutputPath)
+             heliList.remove(heli)
+             return None
     else:
-        Heli.writeHeliLog(heli,commander.config.logOutputPath)
-        heliList.remove(heli)
         return None
             # never back to base how poor you are
         # no value at all. how pathetic you
@@ -508,6 +525,7 @@ def checkAllMissionResidue(missionList,heliList):
         else:
             ml.append(m)
     for m in ml:
+        Mission.writeMissionLog(m)
         missionList.remove(m)
     if residue==False:
          for h in heliList:

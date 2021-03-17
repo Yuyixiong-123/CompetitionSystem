@@ -39,7 +39,7 @@ if __name__ =="__main__":
            heli=th.findTheWaitHeli(heliList)
            th.assignWork(heli, cityList, missionList,heliList)
            i+=1
-           if(i>50):
+           if(i>100):
                break
           
      
