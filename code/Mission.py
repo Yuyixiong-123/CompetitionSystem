@@ -7,6 +7,7 @@ Created on Tue Mar  9 16:35:31 2021
 
 import openpyxl
 import commander
+import json
 
 class Mission:
     def __init__(self,para,residue,log,seri):
@@ -42,11 +43,14 @@ def getMissionList():
     return missionList
 
 def writeMissionLog(m):
-     
-     with open(commander.config.logOutputPath,'a+') as f:
-          f.write("\n任务"+str(m.seri)+": "+m.log[0][-1]+'\n')
-          for l in m.log:
-               f.write(l[0]+' '+str(l[1])+' '+str(l[2])+'\n')
+     for i in range(len(m.log)):
+          m.log[i].insert(0,m.seri)
+     orilog=[]
+     with open(commander.config.missionLogPath,'r') as f:
+          orilog=json.load(f)
+          f.close()
+     with open(commander.config.missionLogPath,'w') as f:
+          json.dump(orilog+m.log,f)
           f.close()
           
 if __name__ =="__main__":

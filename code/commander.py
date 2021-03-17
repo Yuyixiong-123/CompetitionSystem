@@ -18,7 +18,8 @@ import time
 
 class config():
      getFleetTxtPath="../data/fleet1/fleet.txt"
-     logOutputPath="../data/fleet1/fleetLog"+str(time.time())+".txt"
+     logOutputPath="../data/fleet1/HeliLog.json"
+     missionLogPath="../data/fleet1/MissionLog.json"
 
 def getMyFleet():
     with open(config.getFleetTxtPath) as f:

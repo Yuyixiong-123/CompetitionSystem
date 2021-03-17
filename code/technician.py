@@ -7,6 +7,7 @@ Created on Tue Mar  9 19:31:46 2021
 
 import random  
 import copy
+import json
 import static as st
 import Heli
 import City
@@ -489,6 +490,12 @@ def parkHeli(h,b):
     return False
         
 def fleetInitialize(heliNameList):
+    with open(commander.config.logOutputPath,"w") as hlog:
+         json.dump([],hlog)
+         hlog.close()
+    with open(commander.config.missionLogPath,"w") as mlog:
+         json.dump([],mlog)
+         mlog.close()
     cityList=City.getCityList()
     missionList=Mission.getMissionList()
     

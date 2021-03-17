@@ -4,6 +4,7 @@ Created on Tue Mar  9 08:23:03 2021
 
 @author: YU Yixiong
 """
+import json
 import openpyxl
 import static as st
 class Heli():
@@ -93,10 +94,15 @@ def addHeli(name):
 
 def writeHeliLog(h,path):
      print(h.name+"write heli log")
-     with open(path,'a+') as f:
-          for l in h.log:
-              f.write(h.name+':'+' '+str(l[0])+' '+str(l[1])+' '+str(l[2])+'   t='+str(l[3])+'\n')
-          f.write('\n\n')
+     for i in range(len(h.log)):
+          h.log[i].insert(0,h.name)
+     orilog=[]
+     with open(path,'r') as f:
+          orilog=json.load(f)
+          f.close()
+     
+     with open(path,'w') as f:
+          json.dump(orilog+h.log,f)
           f.close()
 
 
