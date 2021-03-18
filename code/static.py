@@ -32,6 +32,14 @@ def getDistance(lat1, lng1, lat2, lng2):
     return s#计算结果单位为千米(km)
 # print(getDistance(28.55, 120, 29.4, 120))
 
+
+
+# def fibonacci(l):
+#     for i in range(1,len(l)):
+#         l[i]+=l[i-1]
+#     return l
+# print(fibonacci([1]))
+
 # =============================================================================
 # =============================================================================
 # a backup from techician's useless code
